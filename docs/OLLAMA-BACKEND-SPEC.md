@@ -45,7 +45,7 @@ export interface LLM {
 
 ```bash
 QMD_LLM_BACKEND=ollama              # "llamacpp" (default) or "ollama"
-QMD_OLLAMA_URL=http://host:11434    # Ollama server URL
+QMD_OLLAMA_URL=http://host.internal:11434    # Ollama server URL
 QMD_OLLAMA_EMBED_MODEL=nomic-embed-text
 QMD_OLLAMA_GENERATE_MODEL=qwen2.5:1.5b
 QMD_OLLAMA_RERANK_MODEL=qwen2.5:1.5b
