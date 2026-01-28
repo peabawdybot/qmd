@@ -2,8 +2,10 @@
  * llm.ts - LLM abstraction layer for QMD using node-llama-cpp
  *
  * Provides embeddings, text generation, and reranking using local GGUF models.
+ * Also supports Ollama as an alternative backend via QMD_LLM_BACKEND env var.
  */
 
+import { OllamaLLM } from "./ollama";
 import {
   getLlama,
   resolveModelFile,
@@ -169,6 +171,11 @@ export interface LLM {
   embed(text: string, options?: EmbedOptions): Promise<EmbeddingResult | null>;
 
   /**
+   * Batch embed multiple texts
+   */
+  embedBatch(texts: string[]): Promise<(EmbeddingResult | null)[]>;
+
+  /**
    * Generate text completion
    */
   generate(prompt: string, options?: GenerateOptions): Promise<GenerateResult | null>;
@@ -189,6 +196,21 @@ export interface LLM {
    * Returns list of documents with relevance scores (higher = more relevant)
    */
   rerank(query: string, documents: RerankDocument[], options?: RerankOptions): Promise<RerankResult>;
+
+  /**
+   * Tokenize text (returns opaque token array)
+   */
+  tokenize(text: string): Promise<readonly unknown[]>;
+
+  /**
+   * Count tokens in text
+   */
+  countTokens(text: string): Promise<number>;
+
+  /**
+   * Detokenize tokens back to text
+   */
+  detokenize(tokens: readonly unknown[]): Promise<string>;
 
   /**
    * Dispose of resources
@@ -838,6 +860,55 @@ export async function disposeDefaultLlamaCpp(): Promise<void> {
   if (defaultLlamaCpp) {
     await defaultLlamaCpp.dispose();
     defaultLlamaCpp = null;
+  }
+}
+
+// =============================================================================
+// Backend-Agnostic Factory Functions
+// =============================================================================
+
+/**
+ * Create an LLM instance based on backend configuration.
+ * Uses QMD_LLM_BACKEND env var: "llamacpp" (default) or "ollama"
+ */
+export function createLLM(backend?: string): LLM {
+  const b = backend || process.env.QMD_LLM_BACKEND || "llamacpp";
+
+  if (b === "ollama") {
+    return new OllamaLLM();
+  }
+
+  return new LlamaCpp();
+}
+
+// Default LLM singleton (backend-aware)
+let defaultLLM: LLM | null = null;
+
+/**
+ * Get the default LLM instance (creates one if needed).
+ * Respects QMD_LLM_BACKEND env var for backend selection.
+ */
+export function getDefaultLLM(): LLM {
+  if (!defaultLLM) {
+    defaultLLM = createLLM();
+  }
+  return defaultLLM;
+}
+
+/**
+ * Set a custom default LLM instance (useful for testing)
+ */
+export function setDefaultLLM(llm: LLM | null): void {
+  defaultLLM = llm;
+}
+
+/**
+ * Dispose the default LLM instance if it exists.
+ */
+export async function disposeDefaultLLM(): Promise<void> {
+  if (defaultLLM) {
+    await defaultLLM.dispose();
+    defaultLLM = null;
   }
 }
 

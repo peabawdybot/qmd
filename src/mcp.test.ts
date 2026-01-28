@@ -10,7 +10,7 @@ import { Database } from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { getDefaultLlamaCpp, disposeDefaultLlamaCpp } from "./llm";
+import { getDefaultLlamaCpp, disposeDefaultLLM } from "./llm";
 import { mkdtemp, writeFile, readdir, unlink, rmdir } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -27,7 +27,7 @@ let testConfigDir: string;
 
 afterAll(async () => {
   // Ensure native resources are released to avoid ggml-metal asserts on process exit.
-  await disposeDefaultLlamaCpp();
+  await disposeDefaultLLM();
 });
 
 function initTestDatabase(db: Database): void {

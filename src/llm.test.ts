@@ -12,6 +12,8 @@ import {
   LlamaCpp,
   getDefaultLlamaCpp,
   disposeDefaultLlamaCpp,
+  getDefaultLLM,
+  disposeDefaultLLM,
   type RerankDocument,
 } from "./llm.js";
 
@@ -26,6 +28,19 @@ describe("Default LlamaCpp Singleton", () => {
     const llm2 = getDefaultLlamaCpp();
     expect(llm1).toBe(llm2);
     expect(llm1).toBeInstanceOf(LlamaCpp);
+  });
+});
+
+describe("Backend-Agnostic LLM Factory", () => {
+  test("getDefaultLLM returns same instance on subsequent calls", () => {
+    const llm1 = getDefaultLLM();
+    const llm2 = getDefaultLLM();
+    expect(llm1).toBe(llm2);
+  });
+
+  test("getDefaultLLM returns LlamaCpp by default", () => {
+    const llm = getDefaultLLM();
+    expect(llm).toBeInstanceOf(LlamaCpp);
   });
 });
 
