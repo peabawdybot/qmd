@@ -46,9 +46,9 @@ export interface LLM {
 ```bash
 QMD_LLM_BACKEND=ollama              # "llamacpp" (default) or "ollama"
 QMD_OLLAMA_URL=http://host.internal:11434    # Ollama server URL
-QMD_OLLAMA_EMBED_MODEL=nomic-embed-text
-QMD_OLLAMA_GENERATE_MODEL=qwen2.5:1.5b
-QMD_OLLAMA_RERANK_MODEL=qwen2.5:1.5b
+QMD_OLLAMA_EMBED_MODEL=embeddinggemma
+QMD_OLLAMA_GENERATE_MODEL=qwen3:1.7b
+QMD_OLLAMA_RERANK_MODEL=qwen3:1.7b
 ```
 
 ---
@@ -89,8 +89,8 @@ export class OllamaLLM implements LLM {
 
   constructor(config: OllamaConfig = {}) {
     this.baseUrl = config.baseUrl || process.env.QMD_OLLAMA_URL || "http://localhost:11434";
-    this.embedModel = config.embedModel || process.env.QMD_OLLAMA_EMBED_MODEL || "nomic-embed-text";
-    this.generateModel = config.generateModel || process.env.QMD_OLLAMA_GENERATE_MODEL || "qwen2.5:1.5b";
+    this.embedModel = config.embedModel || process.env.QMD_OLLAMA_EMBED_MODEL || "embeddinggemma";
+    this.generateModel = config.generateModel || process.env.QMD_OLLAMA_GENERATE_MODEL || "qwen3:1.7b";
     this.rerankModel = config.rerankModel || process.env.QMD_OLLAMA_RERANK_MODEL || this.generateModel;
     this.timeoutMs = config.timeoutMs || 30000;
   }
@@ -451,7 +451,7 @@ describe("OllamaLLM.embed", () => {
 
     expect(result).not.toBeNull();
     expect(result!.embedding).toEqual([0.1, 0.2, 0.3]);
-    expect(result!.model).toBe("nomic-embed-text");
+    expect(result!.model).toBe("embeddinggemma");
   });
 
   test("returns null on API error", async () => {
@@ -500,13 +500,13 @@ describe("OllamaLLM.modelExists", () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            models: [{ name: "nomic-embed-text:latest" }],
+            models: [{ name: "embeddinggemma:latest" }],
           }),
       })
     ) as any;
 
     const ollama = new OllamaLLM();
-    const result = await ollama.modelExists("nomic-embed-text");
+    const result = await ollama.modelExists("embeddinggemma");
 
     expect(result.exists).toBe(true);
   });
