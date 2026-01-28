@@ -17,7 +17,7 @@ import { realpathSync } from "node:fs";
 import * as sqliteVec from "sqlite-vec";
 import {
   LlamaCpp,
-  getDefaultLlamaCpp,
+  getDefaultLLM,
   formatQueryForEmbedding,
   formatDocForEmbedding,
   type RerankDocument,
@@ -1248,7 +1248,7 @@ export async function chunkDocumentByTokens(
   maxTokens: number = CHUNK_SIZE_TOKENS,
   overlapTokens: number = CHUNK_OVERLAP_TOKENS
 ): Promise<{ text: string; pos: number; tokens: number }[]> {
-  const llm = getDefaultLlamaCpp();
+  const llm = getDefaultLLM();
 
   // Tokenize once upfront
   const allTokens = await llm.tokenize(content);
@@ -1991,7 +1991,7 @@ export async function searchVec(db: Database, query: string, model: string, limi
 // =============================================================================
 
 async function getEmbedding(text: string, model: string, isQuery: boolean): Promise<number[] | null> {
-  const llm = getDefaultLlamaCpp();
+  const llm = getDefaultLLM();
   // Format text using the appropriate prompt template
   const formattedText = isQuery ? formatQueryForEmbedding(text) : formatDocForEmbedding(text);
   const result = await llm.embed(formattedText, { model, isQuery });
@@ -2056,7 +2056,7 @@ export async function expandQuery(query: string, model: string = DEFAULT_QUERY_M
     return [query, ...lines.slice(0, 2)];
   }
 
-  const llm = getDefaultLlamaCpp();
+  const llm = getDefaultLLM();
   // Note: LlamaCpp uses hardcoded model, model parameter is ignored
   const results = await llm.expandQuery(query);
   const queryTexts = results.map(r => r.text);
@@ -2091,7 +2091,7 @@ export async function rerank(query: string, documents: { file: string; text: str
 
   // Rerank uncached documents using LlamaCpp
   if (uncachedDocs.length > 0) {
-    const llm = getDefaultLlamaCpp();
+    const llm = getDefaultLLM();
     const rerankResult = await llm.rerank(query, uncachedDocs, { model });
 
     // Cache results

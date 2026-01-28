@@ -32,7 +32,7 @@ import {
   DEFAULT_EMBED_MODEL,
   type RankedResult,
 } from "./store";
-import { getDefaultLlamaCpp, formatDocForEmbedding, disposeDefaultLlamaCpp } from "./llm";
+import { getDefaultLLM, formatDocForEmbedding, disposeDefaultLLM } from "./llm";
 
 // Eval queries with expected documents
 const evalQueries: {
@@ -175,7 +175,7 @@ describe("Vector Search", () => {
     }
 
     // Generate embeddings for test documents
-    const llm = getDefaultLlamaCpp();
+    const llm = getDefaultLLM();
     store.ensureVecTable(768); // embeddinggemma uses 768 dimensions
 
     const evalDocsDir = join(import.meta.dir, "../test/eval-docs");
@@ -407,6 +407,6 @@ describe("Hybrid Search (RRF)", () => {
 
 afterAll(async () => {
   // Ensure native resources are released to avoid ggml-metal asserts on process exit.
-  await disposeDefaultLlamaCpp();
+  await disposeDefaultLLM();
   rmSync(tempDir, { recursive: true, force: true });
 });

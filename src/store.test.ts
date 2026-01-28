@@ -12,7 +12,7 @@ import { unlink, mkdtemp, rmdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import YAML from "yaml";
-import { disposeDefaultLlamaCpp } from "./llm.js";
+import { disposeDefaultLLM } from "./llm.js";
 import {
   createStore,
   getDefaultDbPath,
@@ -222,7 +222,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   // Ensure native resources are released to avoid ggml-metal asserts on process exit.
-  await disposeDefaultLlamaCpp();
+  await disposeDefaultLLM();
 
   try {
     // Clean up test directory
