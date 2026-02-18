@@ -30,7 +30,9 @@ No QMD MCP server currently running. No cron/systemd jobs.
 
 - [*] OPENAI_API_KEY (164 chars) and COHERE_API_KEY (40 chars) set in ~/.bashrc
 
-### [*] 3. Run live provider tests
+- [ ] USER wants to use the default LLM providers and models. Ask user for OPENAI and COHERE keys. Others, if needed. Explain providers, endpoints and model implications of the configured solution.
+
+### [ ] 3. Run live provider tests
 
 - [*] 5/5 pass: OpenAI embed+chat, Cohere embed+chat+rerank
 - [*] 4 skipped (no OpenRouter/Voyage keys)
