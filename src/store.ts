@@ -2825,6 +2825,14 @@ export async function hybridQuery(
 
   const rankedLists: RankedResult[][] = [];
   const docidMap = new Map<string, string>(); // filepath -> docid
+  const timing = !!process.env.QMD_DEBUG_TIMING;
+  const t0 = timing ? performance.now() : 0;
+  const lap = (label: string) => {
+    if (timing) {
+      const elapsed = performance.now() - t0;
+      console.error(`[timing] ${label}: ${elapsed.toFixed(0)}ms`);
+    }
+  };
   const hasVectors = !!store.db.prepare(
     `SELECT name FROM sqlite_master WHERE type='table' AND name='vectors_vec'`
   ).get();
@@ -2832,6 +2840,7 @@ export async function hybridQuery(
   // Step 1: BM25 probe — strong signal skips expensive LLM expansion
   // Pass collection directly into FTS query (filter at SQL level, not post-hoc)
   const initialFts = store.searchFTS(query, 20, collection);
+  lap("bm25-probe");
   const topScore = initialFts[0]?.score ?? 0;
   const secondScore = initialFts[1]?.score ?? 0;
   const hasStrongSignal = initialFts.length > 0
@@ -2844,6 +2853,7 @@ export async function hybridQuery(
   const expanded = hasStrongSignal
     ? []
     : await store.expandQuery(query);
+  lap("expand");
 
   hooks?.onExpand?.(query, expanded);
 
@@ -2891,6 +2901,7 @@ export async function hybridQuery(
     const llm = getDefaultLLM();
     const textsToEmbed = vecQueries.map(q => formatQueryForEmbedding(q.text));
     const embeddings = await llm.embedBatch(textsToEmbed);
+    lap("embed");
 
     // Run sqlite-vec lookups with pre-computed embeddings
     for (let i = 0; i < vecQueries.length; i++) {
@@ -2910,6 +2921,8 @@ export async function hybridQuery(
       }
     }
   }
+
+  lap("vsearch");
 
   // Step 4: RRF fusion — first 2 lists (original FTS + first vec) get 2x weight
   const weights = rankedLists.map((_, i) => i < 2 ? 2.0 : 1.0);
@@ -2945,6 +2958,7 @@ export async function hybridQuery(
   hooks?.onRerankStart?.(chunksToRerank.length);
   const reranked = await store.rerank(query, chunksToRerank);
   hooks?.onRerankDone?.();
+  lap("rerank");
 
   // Step 7: Blend RRF position score with reranker score
   // Position-aware weights: top retrieval results get more protection from reranker disagreement
@@ -2980,6 +2994,8 @@ export async function hybridQuery(
       docid: docidMap.get(r.file) || "",
     };
   }).sort((a, b) => b.score - a.score);
+
+  lap("blend");
 
   // Step 8: Dedup by file (safety net — prevents duplicate output)
   const seenFiles = new Set<string>();
