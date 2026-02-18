@@ -33,6 +33,8 @@ No QMD MCP server currently running. No cron/systemd jobs.
   `QMD_CHAT_API_KEY`, `QMD_RERANK_API_KEY`, or provider-specific keys like
   `OPENAI_API_KEY`, `COHERE_API_KEY`). If none are set, ask user to provide them.
 
+- [ ] USER wants to use the default LLM providers and models. Ask user for OPENAI and COHERE keys. Others, if needed. Explain providers, endpoints and model implications of the configured solution.
+
 ### [ ] 3. Run live provider tests
 
 - [ ] With API keys available, run `npx vitest run test/api.live.test.ts` to confirm
