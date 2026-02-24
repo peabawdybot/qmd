@@ -163,3 +163,8 @@ Key points:
 - The release script renames `[Unreleased]` → `[X.Y.Z] - date` at release time
 - Credit external PRs with `#NNN (thanks @username)`
 - GitHub releases roll up the full minor series (e.g. 1.2.0 through 1.2.3)
+
+## QMD Collection
+
+The QMD project itself is indexed as QMD collection `qmd`. Scope QMD searches with
+`collection: "qmd"` for project-specific results.
