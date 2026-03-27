@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- API-backed LLM providers for embeddings, query expansion, and reranking.
+  Set `QMD_LLM_BACKEND=api` to use external providers instead of local
+  node-llama-cpp models. Supports OpenAI, Cohere, Voyage, and any
+  OpenAI-compatible API.
+- Environment variables for API provider configuration:
+  `QMD_EMBED_BASE_URL`, `QMD_EMBED_API_KEY`, `QMD_EMBED_MODEL`,
+  `QMD_CHAT_BASE_URL`, `QMD_CHAT_API_KEY`, `QMD_CHAT_MODEL`,
+  `QMD_RERANK_BASE_URL`, `QMD_RERANK_API_KEY`, `QMD_RERANK_MODEL`.
+- Character-based chunking fallback when tokenizer is unavailable (API backend
+  does not expose tokenization).
+- `QMD_DEBUG_TIMING=1` environment variable for query pipeline latency
+  instrumentation (logs phase timings to stderr).
+- `PassthroughLLMSession` for API backend — provides session semantics
+  (abort, timeout) without local model lifecycle management.
+
 ## [1.0.6] - 2026-02-16
 
 ### Changes

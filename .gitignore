@@ -1,3 +1,17 @@
+node_modules/
+package-lock.json
+.env
+dist/
+.npmrc
+*.sqlite
+.DS_Store
+archive/
+texts/
+.cursor/
+.github/copilot/
+*.md
+!README.md
+!CLAUDE.md
 !CHANGELOG.md
 !CLAUDE.md
 !PLAN.md
